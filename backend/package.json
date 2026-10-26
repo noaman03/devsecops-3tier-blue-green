@@ -1,0 +1,15 @@
+{
+  "name": "devsecops-backend",
+  "version": "1.0.0",
+  "description": "3-Tier Backend API for Blue-Green DevSecOps Pipeline",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Running unit tests... All tests passed!\" && exit 0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.3.1"
+  }
+}

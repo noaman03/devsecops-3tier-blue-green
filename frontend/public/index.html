@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevSecOps 3-Tier Blue-Green App</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 30px; }
+    .container { max-width: 700px; margin: 0 auto; background: #1e293b; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
+    .banner { padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; font-size: 1.3rem; margin-bottom: 20px; text-transform: uppercase; }
+    .blue { background: #2563eb; border: 2px solid #60a5fa; }
+    .green { background: #16a34a; border: 2px solid #4ade80; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 25px; }
+    .card { background: #334155; padding: 12px; border-radius: 8px; text-align: center; }
+    .card small { color: #94a3b8; display: block; margin-bottom: 5px; }
+    .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+    input { flex: 1; padding: 12px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; }
+    button { padding: 12px 20px; border: none; border-radius: 6px; background: #3b82f6; color: white; font-weight: bold; cursor: pointer; }
+    button:hover { opacity: 0.9; }
+    ul { list-style: none; padding: 0; }
+    li { background: #0f172a; padding: 12px 15px; margin-bottom: 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+    .del-btn { background: #ef4444; padding: 6px 12px; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="env-banner" class="banner blue">Loading Environment...</div>
+
+    <div class="stats">
+      <div class="card"><small>App Version</small><strong id="version">-</strong></div>
+      <div class="card"><small>Pod / Container ID</small><strong id="pod">-</strong></div>
+      <div class="card"><small>MongoDB Status</small><strong id="db">-</strong></div>
+    </div>
+
+    <div class="input-group">
+      <input type="text" id="taskInput" placeholder="Add a deployment test task..." />
+      <button onclick="addTask()">Add Task</button>
+    </div>
+
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    async function loadData() {
+      try {
+        const infoRes = await fetch('/api/info');
+        const info = await infoRes.json();
+
+        const banner = document.getElementById('env-banner');
+        const color = (info.deploymentColor || 'blue').toLowerCase();
+        banner.className = 'banner ' + (color === 'green' ? 'green' : 'blue');
+        banner.innerText = `Active Environment: ${color.toUpperCase()} (${info.version})`;
+
+        document.getElementById('version').innerText = info.version;
+        document.getElementById('pod').innerText = info.podName;
+        document.getElementById('db').innerText = info.dbStatus;
+
+        const tasksRes = await fetch('/api/tasks');
+        const tasks = await tasksRes.json();
+        const list = document.getElementById('taskList');
+        list.innerHTML = tasks.map(t => `
+          <li>
+            <span>${t.title}</span>
+            <button class="del-btn" onclick="deleteTask('${t._id}')">Delete</button>
+          </li>
+        `).join('');
+      } catch (e) {
+        document.getElementById('env-banner').innerText = 'Backend API Unreachable';
+      }
+    }
+
+    async function addTask() {
+      const input = document.getElementById('taskInput');
+      if (!input.value.trim()) return;
+      await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: input.value })
+      });
+      input.value = '';
+      loadData();
+    }
+
+    async function deleteTask(id) {
+      await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
+      loadData();
+    }
+
+    loadData();
+  </script>
+</body>
+</html>

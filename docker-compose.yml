@@ -1,0 +1,41 @@
+services:
+  mongodb-service:
+    image: mongo:7.0
+    container_name: mongodb-container
+    restart: always
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - three-tier-net
+
+  backend-service:
+    build: ./backend
+    container_name: backend-container
+    restart: always
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongodb-service:27017/devsecops_db
+      - APP_VERSION=v1.0.0
+      - APP_COLOR=blue
+    depends_on:
+      - mongodb-service
+    networks:
+      - three-tier-net
+
+  frontend-service:
+    build: ./frontend
+    container_name: frontend-container
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend-service
+    networks:
+      - three-tier-net
+
+networks:
+  three-tier-net:
+    driver: bridge
+
+volumes:
+  mongo_data:
