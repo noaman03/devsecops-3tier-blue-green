@@ -1,71 +1,5 @@
 pipeline {
     agent any
     environment {
-        SCANNER_HOME    = tool 'sonar-scanner'
-        DOCKERHUB_CREDS = credentials('dockerhub-creds')
-        BACKEND_IMAGE   = "${DOCKERHUB_CREDS_USR}/devsecops-backend"
-        FRONTEND_IMAGE  = "${DOCKERHUB_CREDS_USR}/devsecops-frontend"
-        IMAGE_TAG       = "v1.0.${BUILD_NUMBER}"
-    }
-    stages {
-        stage('1. Checkout Code') {
-            steps {
-                git branch: 'main', url: 'https://github.com/noaman03/devsecops-3tier-blue-green.git'
-            }
-        }
-        stage('2. Backend Unit Tests') {
-            steps {
-                dir('backend') {
-                    sh 'npm install'
-                    sh 'npm test'
-                }
-            }
-        }
-        stage('3. Trivy FileSystem Scan') {
-            steps {
-                sh 'trivy fs --scanners vuln,secret --severity HIGH,CRITICAL --exit-code 0 .'
-            }
-        }
-        stage('4. SonarQube SAST Analysis') {
-            steps {
-                withSonarQubeEnv('sonar-server') {
-                    sh "${SCANNER_HOME}/bin/sonar-scanner -Dsonar.projectKey=devsecops-3tier-app -Dsonar.projectName=DevSecOps-3Tier-App -Dsonar.sources=backend,frontend -Dsonar.exclusions=**/node_modules/**"
-                }
-            }
-        }
-        stage('5. SonarQube Quality Gate') {
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-        stage('6. Build Docker Images') {
-            steps {
-                sh "docker build -t ${BACKEND_IMAGE}:${IMAGE_TAG} -t ${BACKEND_IMAGE}:latest ./backend"
-                sh "docker build -t ${FRONTEND_IMAGE}:${IMAGE_TAG} -t ${FRONTEND_IMAGE}:latest ./frontend"
-            }
-        }
-        stage('7. Trivy Container Image Scan') {
-            steps {
-                sh "trivy image --severity HIGH,CRITICAL --exit-code 0 ${BACKEND_IMAGE}:${IMAGE_TAG}"
-                sh "trivy image --severity HIGH,CRITICAL --exit-code 0 ${FRONTEND_IMAGE}:${IMAGE_TAG}"
-            }
-        }
-        stage('8. Push Images to Docker Hub') {
-            steps {
-                sh 'echo $DOCKERHUB_CREDS_PSW | docker login -u $DOCKERHUB_CREDS_USR --password-stdin'
-                sh "docker push ${BACKEND_IMAGE}:${IMAGE_TAG}"
-                sh "docker push ${BACKEND_IMAGE}:latest"
-                sh "docker push ${FRONTEND_IMAGE}:${IMAGE_TAG}"
-                sh "docker push ${FRONTEND_IMAGE}:latest"
-                sh 'docker logout'
-            }
-        }
-    }
-    post {
-        always {
-            sh 'docker image prune -f'
-        }
-    }
-}
+        SCANNER_HOME = tool 'sonar-scanner'
+        DOCKERHUWĞÔ‘QÈHÜ™Y[X[Ê	ÙØÚÙ\šX‹XÜ™YÉÊBˆPÒÑS‘ÒSPQÑHH‰ÑĞÒÑT’P—ĞÔ‘Q×ÕTÔŸKÙ]œÙXÛÜËX˜XÚÙ[™‚ˆ”“Ó•S‘ÒSPQÑHH‰ÑĞÒÑT’Uô5$TE5õU5'ÒöFWg6V6÷2Ög&öçFVæB ¢”ÔtUõDrÒ'cãâG´%T”ÄEôåTÔ$U'Ò ¢Ğ¢7FvW2°¢7FvR‚sâ6†V6¶÷WB6öFRr’°¢7FW2°¢v—B'&æ6ƒ¢vÖ–ârÂW&Ã¢v‡GG3¢òöv—F‡V"æ6öÒöæöÖã2öFWg6V6÷2Ó7F–W"Ö&ÇVRÖw&VVâæv—Bp¢Ğ¢Ğ¢7FvR‚s"â&6¶VæBVæ—BFW7G2r’°¢7FW2°¢F—"‚v&6¶VæBr’°¢6‚vçÒ–ç7FÆÂp¢6‚vçÒFW7Bp¢Ğ¢Ğ¢Ğ¢7FvR‚s2âG&—g’f–ÆU7—7FVÒ66âr’°¢7FW2°¢6‚wG&—g’g2Ò×66ææW'2gVÆâÇ6V7&WBÒ×6WfW&—G’„”t‚Ä5$•D”4ÂÒÖW†—BÖ6öFRâp¢Ğ¢Ğ¢7FvR‚sBâ6öæ%V&R45BæÇ—6—2r’°¢7FW2°¢v—F…6öæ%V&TVçb‚w6öæ"×6W'fW"r’°¢6‚"E44ääU%ô„ôÔRö&–â÷6öæ"×66ææW"ÔG6öæ"ç&ö¦V7D¶W“ÖFWg6V6÷2Ó7F–W"ÖÔG6öæ"ç&ö¦V7DæÖSÔFWe6V4÷2Ó5F–W"ÔÔG6öæ"ç6÷W&6W3Ö&6¶VæBÆg&öçFVæBÔG6öæ"æW†6ÇW6–öç3Ò¢¢öæöFUöÖöGVÆW2ò¢¢ ¢Ğ¢Ğ¢Ğ¢7FvR‚sRâ6öæ%V&RVÆ—G’vFRr’°¢7FW2°¢F–ÖV÷WB‡F–ÖS¢RÂVæ—C¢tÔ”åUDU2r’°¢v—Df÷%VÆ—G”vFR&÷'E—VÆ–æS¢G'VP¢Ğ¢Ğ¢Ğ¢7FvR‚sbâ'V–ÆBFö6¶W"–ÖvW2r’°¢7FW2°¢6‚&Fö6¶W"'V–ÆB×BD$4´TäEô”ÔtS¢D”ÔtUõDr×BD$4´TäEô”ÔtS¦ÆFW7Bâö&6¶VæB ¢6‚&Fö6¶W"'V–ÆB×BDe$ôåDTäEô”ÔtS¢D”ÔtUõDr×BDe$ôåDTäEô”ÔtS¦ÆFW7Bâög&öçFVæB ¢Ğ¢Ğ¢7FvR‚srâG&—g’6öçF–æW"–ÖvR66âr’°¢7FW2°¢6‚'G&—g’–ÖvRÒ×6WfW&—G’…4‚Ä5$•D”4ÂÒÖW†—BÖ6öFRD$4´TäEô”ÔtS¢D”ÔtUõDr%À¢6‚'G&—g’–ÖvRÒ×6WfW&—G’„”t‚Ä5$•D”4ÂÒÖW†—BÖ6öFRDe$ôåDTäEô”ÔtS¢D”ÔtUõDr ¢Ğ¢Ğ¢7FvR‚s‚âW6‚–ÖvW2FòFö6¶W"‡V"r’°¢7FW2°¢6‚&V6†òDDô4´U$…T%ô5$TE5õ5rÂFö6¶W"Æöv–â×RDDô4´U$…T%ô5$TE5õU5"Ò×77v÷&B×7FF–â ¢6‚&Fö6¶W"W6‚D$4´TäEô”ÔtS¢D”ÔtUõDr%À¢6‚&Fö6¶W"W6‚D$4´TäEô”ÔtS¦ÆFW7B ¢6‚&Fö6¶W"W6‚De$ôåDTäEô”ÔtS¢D”ÔtUõDr ¢6‚&Fö6¶W"W6‚De$ôåDTäEô”ÔtS¦ÆFW7B ¢6‚&Fö6¶W"Æöv÷WB ¢Ğ¢Ğ¢Ğ¢÷7B°¢Çv—2°¢6‚vFö6¶W"–ÖvR'VæRÖbp¢Ğ¢Ğ§Ğ
