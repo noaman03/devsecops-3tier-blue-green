@@ -3,13 +3,13 @@ kind: Rollout
 metadata:
   name: backend-rollout
   namespace: default
-spec:
+spec: 
   replicas: 2
   strategy:
     blueGreen:
       activeService: backend-service
       previewService: backend-preview-service
-      autoPromotionEnabled: false # يوقف الـ Cutover تلقائياً لحد ما نتأكد ونوافق بإيدينا
+      autoPromotionEnabled: false
   selector:
     matchLabels:
       app: backend
@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: noaman03/devsecops-backend:latest
+        image: noaman003/devsecops-backend:latest
         ports:
         - containerPort: 5000
         env:
@@ -44,7 +44,7 @@ kind: Service
 metadata:
   name: backend-service
   namespace: default
-spec:
+spec: 
   selector:
     app: backend
   ports:
@@ -56,7 +56,7 @@ kind: Service
 metadata:
   name: backend-preview-service
   namespace: default
-spec:
+spec: 
   selector:
     app: backend
   ports:

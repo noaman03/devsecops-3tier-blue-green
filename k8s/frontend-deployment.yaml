@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: frontend-deployment
   namespace: default
-spec:
+spec: 
   replicas: 1
   selector:
     matchLabels:
@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: noaman03/devsecops-frontend:latest
+        image: noaman003/devsecops-frontend:latest
         ports:
         - containerPort: 80
 ---
@@ -24,7 +24,7 @@ kind: Service
 metadata:
   name: frontend-service
   namespace: default
-spec:
+spec: 
   selector:
     app: frontend
   ports:

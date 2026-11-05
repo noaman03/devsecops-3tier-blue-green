@@ -24,7 +24,7 @@ spec:
     metadata:
       labels:
         app: mongodb
-    spec:
+    spec: 
       containers:
       - name: mongodb
         image: mongo:7.0
@@ -43,7 +43,7 @@ kind: Service
 metadata:
   name: mongodb-service
   namespace: default
-spec:
+spec: 
   selector:
     app: mongodb
   ports:
